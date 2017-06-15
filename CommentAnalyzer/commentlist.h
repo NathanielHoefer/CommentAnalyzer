@@ -40,7 +40,8 @@ public:
     void setFilePath(const QString &path);
 
 
-    /*  Imports all of the comments from the source file specified.
+    /**
+     *  Imports all of the comments from the source file specified.
      *  If there is an issue with importing, throws invalid_argument
      *  exception.
      */
@@ -54,14 +55,16 @@ private:
     QDate mLastUpdateTime;
     int count;
 
-    /*  Converts the source file into an xml file and stores it in
+    /**
+     *  Converts the source file into an xml file and stores it in
      *  a folder in the directory above the executable. The conversion
      *  is done using srcML
      *      Returns the file path of the xml file
      */
     QString convertSrcToXml() throw (std::invalid_argument);
 
-    /*  Parses and imports the comment objects from the source xml file
+    /**
+     *  Parses and imports the comment objects from the source xml file
      *  and adds them to the comment list.
      */
     void importCommentFromXml(const QString xmlPath) throw (std::invalid_argument);
