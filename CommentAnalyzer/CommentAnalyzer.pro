@@ -26,14 +26,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp\
         mainwindow.cpp \
     comment.cpp \
-    linecomment.cpp \
-    blockcomment.cpp \
     commentlist.cpp
 
 HEADERS  += mainwindow.h \
     comment.h \
-    linecomment.h \
-    blockcomment.h \
     commentlist.h
 
 FORMS    += mainwindow.ui
