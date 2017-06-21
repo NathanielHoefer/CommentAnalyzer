@@ -13,14 +13,14 @@ namespace {
      * @param end - ending line number
      * @return a string list containing each line as its own element
      */
-    QStringList mapToStringList(const QMap &map, int begin, int end) {
+    QStringList mapToStringList(const QMap<int, QString> &map, int begin, int end) {
         QStringList output;
-        int startOffset = begin - map.firstKey();
-        int endOffset = map.lastKey() - end;
+        int startOffset = begin - int(map.firstKey());
+        int endOffset = int(map.lastKey()) - end;
         if (!map.empty() && startOffset >= endOffset) {
-            for (QMap<int, QString>::iterator i = map.begin() + startOffset;
+            for (QMap<int, QString>::const_iterator i = map.begin() + startOffset;
                 i != map.end() - endOffset; i++) {
-                output << i;
+                output << *i;
             }
         }
         return output;
@@ -40,15 +40,13 @@ Comment::Comment()
     mBadComment = false;
 }
 
-Comment::Comment(Comment parent,
+Comment::Comment(Comment *parent,
                  const QPair<int, int> &comLineNum,
                  const QPair<int, int> &codeLineNum,
                  Type type, Format format, bool badCom) :
     mParentComment(parent),
-    mCommentText(QStringList()),
-    mCodeText(QStringList()),
-    mComLineNums(comText),
-    mCodeLineNums(codeText),
+    mComLineNums(comLineNum),
+    mCodeLineNums(codeLineNum),
     mType(type),
     mFormat(format),
     mBadComment(badCom)
@@ -61,8 +59,8 @@ Comment::Comment(const QString &comText,
                  const QPair<int, int> &comLineNum,
                  const QPair<int, int> &codeLineNum,
                  Type type, Format format, bool badCom) :
-    mComLineNums(comText),
-    mCodeLineNums(codeText),
+    mComLineNums(comLineNum),
+    mCodeLineNums(codeLineNum),
     mType(type),
     mFormat(format),
     mBadComment(badCom)
@@ -72,13 +70,15 @@ Comment::Comment(const QString &comText,
     // Maps the comments text to the comment text map by line number
     QStringList tempComList = comText.split(LINE_SEPARATOR);
     for (int i = comLineNum.first; i <= comLineNum.second; i++) {
-        mCommentText[i] = tempComList.pop_front();
+        mCommentText[i] = tempComList.front();
+        tempComList.pop_front();
     }
 
     // Maps the code text to the code text map by line number
     QStringList tempCodeList = codeText.split(LINE_SEPARATOR);
     for (int i = codeLineNum.first; i <= codeLineNum.second; i++) {
-        mCodeText[i] = tempCodeList.pop_front();
+        mCodeText[i] = tempCodeList.front();
+        tempCodeList.pop_front();
     }
 }
 
@@ -108,19 +108,19 @@ Comment *Comment::getChild(int index)
 
 QStringList Comment::getCommentText() const
 {
-    if (parent == NULL) {
+    if (mParentComment == NULL) {
         return mapToStringList(mCommentText, mComLineNums.first, mComLineNums.second);
     } else {
-        return mapToStringList(mParentComment->getParentComText(), mComLineNums.first, mComLineNums.second);
+        return mapToStringList(mParentComment->getParentComTextMap(), mComLineNums.first, mComLineNums.second);
     }
 }
 
 QStringList Comment::getCodeText() const
 {
-    if (parent == NULL) {
+    if (mParentComment == NULL) {
         return mapToStringList(mCodeText, mCodeLineNums.first, mCodeLineNums.second);
     } else {
-        return mapToStringList(mParentComment->getParentCodeText(), mCodeLineNums.first, mCodeLineNums.second);
+        return mapToStringList(mParentComment->getParentCodeTextMap(), mCodeLineNums.first, mCodeLineNums.second);
     }
 }
 
@@ -172,7 +172,7 @@ Comment * Comment::merge(const Comment *com)
 {
     int lineSeparation = com->mComLineNums.first - this->mComLineNums.second;
     if (lineSeparation == 1
-            && mType = com->mType
+            && mType == com->mType
             && mCodeLineNums.first < 0
             && mParentComment == com->mParentComment) {
         mComLineNums.second = com->mComLineNums.second;
@@ -184,28 +184,28 @@ Comment * Comment::merge(const Comment *com)
 QString Comment::toString()
 {
     QStringList output;
-    output << "Text: " + mText
+    output << "Comment Text: " + getCommentText().join("\n")
            << "Start Line: " + QString::number(mComLineNums.first)
            << "Ending Line: " + QString::number(mComLineNums.second)
-           << "Column Number: " + QString::number(mColumnNumber)
-           << "Bad comment: " + QString::number(mBadComment);
-    return output.join(", ");
+           << "Code Text: " + getCodeText().join("\n")
+           << "Bad comment: " + QString::number(mBadComment) + "\n\n";
+    return output.join("\n");
 }
 
-QMap Comment::getParentComTextMap()
+QMap<int, QString> Comment::getParentComTextMap()
 {
     if (mParentComment == NULL) {
         return mParentComment->mCommentText;
     } else {
-        return mParentComment->getParentComText();
+        return mParentComment->getParentComTextMap();
     }
 }
 
-QMap Comment::getParentCodeText()
+QMap<int, QString> Comment::getParentCodeTextMap()
 {
     if (mParentComment == NULL) {
         return mParentComment->mCodeText;
     } else {
-        return mParentComment->getParentCodeText();
+        return mParentComment->getParentCodeTextMap();
     }
 }

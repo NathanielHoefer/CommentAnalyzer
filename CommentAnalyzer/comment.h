@@ -69,7 +69,7 @@ public:
      * @param format
      * @param badCom
      */
-    Comment(Comment parent,
+    Comment(Comment *parent,
             const QPair<int, int> &comLineNum,
             const QPair<int, int> &codeLineNum,
             Type type, Format format, bool badCom);
@@ -213,7 +213,7 @@ private:
     bool mBadComment;
 
 //==============================================================================
-// PUBLIC MEMBER FUNCTIONS
+// PRIVATE MEMBER FUNCTIONS
 //==============================================================================
 
     /**
@@ -221,14 +221,14 @@ private:
      * root comment will contain all of the code text to be used by the children.
      * @return The source code of the root comment separated by line number.
      */
-    QMap getParentCodeTextMap();
+    QMap<int, QString> getParentCodeTextMap();
 
     /**
      * @brief getParentComText - To avoid having a lot of duplicate data, the
      * root comment will contain all of the comment text to be used by the children.
      * @return The comment code of the root comment separated by line number.
      */
-    QMap getParentComTextMap();
+    QMap<int, QString> getParentComTextMap();
 };
 
 #endif // COMMENT_H
