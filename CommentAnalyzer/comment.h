@@ -204,8 +204,7 @@ private:
 //==============================================================================
     Comment *mParentComment;
     QVector<Comment*> mChildrenComments;
-    QMap<int, QString> mCommentText;    // Maps comment text by line number
-    QMap<int, QString> mCodeText;       // Maps code text by line number
+    QMap<int, QString> mText;           // Maps comment and code text by line number to be used by root parent comment
     QPair<int, int> mComLineNums;       // -1 indicates not initialized
     QPair<int, int> mCodeLineNums;      // -1 indicates no following code
     Type mType;
@@ -221,14 +220,8 @@ private:
      * root comment will contain all of the code text to be used by the children.
      * @return The source code of the root comment separated by line number.
      */
-    QMap<int, QString> getParentCodeTextMap();
+    QMap<int, QString> getParentTextMap();
 
-    /**
-     * @brief getParentComText - To avoid having a lot of duplicate data, the
-     * root comment will contain all of the comment text to be used by the children.
-     * @return The comment code of the root comment separated by line number.
-     */
-    QMap<int, QString> getParentComTextMap();
 };
 
 #endif // COMMENT_H

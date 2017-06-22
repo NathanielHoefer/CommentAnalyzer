@@ -31,8 +31,7 @@ Comment::Comment()
 {
     mParentComment = NULL;
     mChildrenComments = QVector<Comment*>();
-    mCommentText = QMap<int, QString>();
-    mCodeText = QMap<int, QString>();
+    mText = QMap<int, QString>();
     mComLineNums = QPair<int, int>(-1, -1);
     mCodeLineNums = QPair<int, int>(-1, -1);
     mType = DefaultType;
@@ -67,18 +66,11 @@ Comment::Comment(const QString &comText,
 {
     mParentComment = NULL;
 
-    // Maps the comments text to the comment text map by line number
-    QStringList tempComList = comText.split(LINE_SEPARATOR);
-    for (int i = comLineNum.first; i <= comLineNum.second; i++) {
-        mCommentText[i] = tempComList.front();
-        tempComList.pop_front();
-    }
-
     // Maps the code text to the code text map by line number
-    QStringList tempCodeList = codeText.split(LINE_SEPARATOR);
+    QStringList tempList = codeText.split(LINE_SEPARATOR);
     for (int i = codeLineNum.first; i <= codeLineNum.second; i++) {
-        mCodeText[i] = tempCodeList.front();
-        tempCodeList.pop_front();
+        mText[i] = tempList.front();
+        tempList.pop_front();
     }
 }
 
@@ -109,18 +101,18 @@ Comment *Comment::getChild(int index)
 QStringList Comment::getCommentText() const
 {
     if (mParentComment == NULL) {
-        return mapToStringList(mCommentText, mComLineNums.first, mComLineNums.second);
+        return mapToStringList(mText, mComLineNums.first, mComLineNums.second);
     } else {
-        return mapToStringList(mParentComment->getParentComTextMap(), mComLineNums.first, mComLineNums.second);
+        return mapToStringList(mParentComment->getParentTextMap(), mComLineNums.first, mComLineNums.second);
     }
 }
 
 QStringList Comment::getCodeText() const
 {
     if (mParentComment == NULL) {
-        return mapToStringList(mCodeText, mCodeLineNums.first, mCodeLineNums.second);
+        return mapToStringList(mText, mCodeLineNums.first, mCodeLineNums.second);
     } else {
-        return mapToStringList(mParentComment->getParentCodeTextMap(), mCodeLineNums.first, mCodeLineNums.second);
+        return mapToStringList(mParentComment->getParentTextMap(), mCodeLineNums.first, mCodeLineNums.second);
     }
 }
 
@@ -192,20 +184,11 @@ QString Comment::toString()
     return output.join("\n");
 }
 
-QMap<int, QString> Comment::getParentComTextMap()
+QMap<int, QString> Comment::getParentTextMap()
 {
     if (mParentComment == NULL) {
-        return mParentComment->mCommentText;
+        return mParentComment->mText;
     } else {
-        return mParentComment->getParentComTextMap();
-    }
-}
-
-QMap<int, QString> Comment::getParentCodeTextMap()
-{
-    if (mParentComment == NULL) {
-        return mParentComment->mCodeText;
-    } else {
-        return mParentComment->getParentCodeTextMap();
+        return mParentComment->getParentTextMap();
     }
 }

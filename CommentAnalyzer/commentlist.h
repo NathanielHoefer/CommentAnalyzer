@@ -19,6 +19,7 @@
 
 #include <QVector>
 #include <QDateTime>
+#include <QDomNode>
 #include "comment.h"
 
 class CommentList
@@ -101,7 +102,7 @@ private:
 // PRIVATE MEMBER FUNCTIONS
 //==============================================================================
 
-    /** TODO
+    /** TODO: Base Works, needs additional testing
      *  Converts the source file into an xml file and stores it in
      *  a folder in the directory above the executable. The conversion
      *  is done using srcML
@@ -112,7 +113,17 @@ private:
      *  Parses and imports the comment objects from the source xml file
      *  and adds them to the comment list.
      */
-    void importCommentFromXml(const QString xmlPath) throw (std::invalid_argument);
+    void importCommentFromXml() throw (std::invalid_argument);
+
+
+    /**
+     * @brief domNodeToMap - extracts all of the text data from the xml file
+     * and adds it to a map using line numbers as keys, starting with the
+     * line number of the parent. Resulting map should resemble the source code
+     * @param parent
+     * @return Returns a map of the node
+     */
+    QMap<int, QString> domCommentNodeToMap(const QDomNode &parent);
 };
 
 #endif // COMMENTLIST_H
